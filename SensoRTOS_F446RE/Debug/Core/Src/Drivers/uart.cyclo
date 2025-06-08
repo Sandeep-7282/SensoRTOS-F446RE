@@ -1,0 +1,4 @@
+../Core/Src/Drivers/uart.c:9:6:UART2_Init	1
+../Core/Src/Drivers/uart.c:21:6:UART2_SendChar	2
+../Core/Src/Drivers/uart.c:26:6:UART2_SendString	2
+../Core/Src/Drivers/uart.c:32:6:UART2_ReceiveChar	2

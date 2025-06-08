@@ -1,0 +1,13 @@
+/*
+ * dht11.h
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sande
+ */
+
+#ifndef INC_DRIVERS_DHT11_H_
+#define INC_DRIVERS_DHT11_H_
+
+
+
+#endif /* INC_DRIVERS_DHT11_H_ */

@@ -1,0 +1,12 @@
+/*
+ * output_control.c
+ *
+ *  Created on: Jun 8, 2025
+ *      Author: sande
+ */
+#include "output_control.h"
+
+volatile OutputTarget dht11_output = OUTPUT_UART;
+volatile OutputTarget hcsr04_output = OUTPUT_UART;
+volatile OutputTarget hcsr501_output   = OUTPUT_UART;
+

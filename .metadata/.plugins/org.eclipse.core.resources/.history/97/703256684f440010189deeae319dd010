@@ -1,0 +1,50 @@
+/*
+ * Task_HCSR04.c
+ *
+ *  Created on: May 26, 2025
+ *      Author: sandeep
+ */
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "hcsr04.h"
+#include "uart.h"
+#include "ssd1306.h"
+#include "stdio.h"
+
+// Output flag extern (declare in a shared header)
+extern volatile uint8_t hcsr04_output;
+
+#define OUTPUT_UART 0
+#define OUTPUT_OLED 1
+
+void vTask_HCSR04(void *params) {
+    char msg[64];
+    char line1[32], line2[32];
+    uint32_t distance;
+
+    HC_SR04_Init();
+    UART2_SendString("HC-SR04 Task Started\r\n");
+
+    while (1) {
+        distance = HC_SR04_ReadDistance();
+
+        if (distance > 0) {
+            if (hcsr04_output == OUTPUT_UART) {
+                snprintf(msg, sizeof(msg), "Distance: %lu cm\r\n", distance);
+                UART2_SendString(msg);
+            } else if (hcsr04_output == OUTPUT_OLED) {
+                snprintf(line1, sizeof(line1), "HC-SR04:");
+                snprintf(line2, sizeof(line2), "%lu cm", distance);
+                ssd1306_display_sensor_data(line1, line2);
+            }
+        } else {
+            if (hcsr04_output == OUTPUT_UART) {
+                UART2_SendString("Distance read error!\r\n");
+            } else if (hcsr04_output == OUTPUT_OLED) {
+                ssd1306_display_sensor_data("HC-SR04 Error", "Read Failed");
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(2000));  // 2 second delay
+    }
+}

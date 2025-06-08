@@ -1,0 +1,2 @@
+../Core/Src/Drivers/hcsr04.c:22:6:HC_SR04_Init	4	static
+../Core/Src/Drivers/hcsr04.c:42:10:HC_SR04_ReadDistance	16	static

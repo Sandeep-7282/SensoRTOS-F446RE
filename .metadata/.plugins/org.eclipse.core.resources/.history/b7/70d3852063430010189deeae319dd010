@@ -1,0 +1,21 @@
+/*
+ * Task_UART.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "gpio.h"
+#include "uart.h"
+
+//Task Functions Declarations
+void vTask_UART(void *argument);
+
+void vTask_UART(void *pvParameters) {
+   char c;
+    while (1) {
+        c=UART2_ReceiveChar();
+        UART2_SendChar(c);
+    }
+}

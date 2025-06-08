@@ -1,0 +1,9 @@
+
+
+#ifndef INC_INFO_H_
+#define INC_INFO_H_
+
+void DisplayHelp(void);
+void DisplayProjectInfo(void);
+
+#endif /* INC_INFO_H_ */

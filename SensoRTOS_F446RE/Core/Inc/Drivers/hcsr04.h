@@ -1,0 +1,11 @@
+
+#ifndef INC_DRIVERS_HCSR04_H_
+#define INC_DRIVERS_HCSR04_H_
+
+#include "stm32f4xx.h"
+#include <stdint.h>
+
+void HC_SR04_Init(void);
+uint32_t HC_SR04_ReadDistance(void); // returns distance in cm, 0 if error
+
+#endif /* INC_DRIVERS_HCSR04_H_ */

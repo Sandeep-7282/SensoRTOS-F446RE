@@ -1,0 +1,13 @@
+/*
+ * Task_OLED.h
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+
+#ifndef INC_TASKS_TASK_OLED_H_
+#define INC_TASKS_TASK_OLED_H_
+
+void vTask_OLED(void *params);
+
+#endif /* INC_TASKS_TASK_OLED_H_ */

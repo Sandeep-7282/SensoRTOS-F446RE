@@ -1,0 +1,49 @@
+/*
+ * uart_cli.c
+ *
+ *  Created on: Jun 8, 2025
+ *      Author: sande
+ */
+#include "uart_cli.h"
+#include "string.h"
+#include "output_control.h"
+#include "ssd1306.h"
+#include "uart.h"
+#include "info.h"
+
+void handle_cli_command(char *cmd) {
+    if (strncmp(cmd, "oled dht11", 10) == 0) {
+        dht11_output = OUTPUT_OLED;
+        UART2_SendString("DHT11 redirected to OLED\r\n");
+    } else if (strncmp(cmd, "uart dht11", 10) == 0) {
+        dht11_output = OUTPUT_UART;
+        UART2_SendString("DHT11 redirected to UART\r\n");
+    } else if (strncmp(cmd, "oled hcsr04", 11) == 0) {
+        hcsr04_output = OUTPUT_OLED;
+        UART2_SendString("HC-SR04 redirected to OLED\r\n");
+    } else if (strncmp(cmd, "uart hcsr04", 11) == 0) {
+        hcsr04_output = OUTPUT_UART;
+        UART2_SendString("HC-SR04 redirected to UART\r\n");
+    } else if (strncmp(cmd, "oled pir", 8) == 0) {
+        hcsr501_output = OUTPUT_OLED;
+        UART2_SendString("PIR redirected to OLED\r\n");
+    } else if (strncmp(cmd, "uart pir", 8) == 0) {
+        hcsr501_output = OUTPUT_UART;
+        UART2_SendString("PIR redirected to UART\r\n");
+    } else if (strcmp(cmd, "reboot") == 0) {
+        UART2_SendString("System rebooting...\r\n");
+        NVIC_SystemReset();  // Built-in CMSIS function to trigger a software reset
+    } else if (strcmp(cmd, "help") == 0) {
+    	DisplayHelp();
+    } else if (strncmp(cmd, "oled off", 8) == 0) {
+    	ssd1306_clear();
+        dht11_output = OUTPUT_UART;
+        hcsr04_output = OUTPUT_UART;
+        hcsr501_output = OUTPUT_UART;
+        UART2_SendString("OLED cleared. All sensors set to UART.\r\n");
+    } else {
+    	UART2_SendString("Unknown command\r\n");
+    }
+}
+
+

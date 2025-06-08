@@ -1,0 +1,4 @@
+../Core/Src/Drivers/i2c.c:10:6:I2C1_init	1
+../Core/Src/Drivers/i2c.c:36:6:I2C1_start	3
+../Core/Src/Drivers/i2c.c:45:6:I2C1_write	3
+../Core/Src/Drivers/i2c.c:51:6:I2C1_stop	1

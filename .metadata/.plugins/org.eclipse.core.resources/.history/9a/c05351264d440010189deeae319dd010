@@ -1,0 +1,56 @@
+/*
+ * Task_DHT11.c
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "dht11.h"
+#include "uart.h"
+#include "ssd1306.h"
+#include "stdio.h"
+#include "string.h"
+
+// Declare output control flag somewhere global (e.g. in output_control.h/c)
+extern volatile uint8_t dht11_output;
+
+#define OUTPUT_UART 0
+#define OUTPUT_OLED 1
+
+volatile uint8_t dht_temp = 0;
+volatile uint8_t dht_hum = 0;
+
+void vTask_DHT11(void *params) {
+    DHT11_Data sensor_data;
+    char msg[64];
+    char line1[32], line2[32];
+
+    DHT11_Init();
+    UART2_SendString("DHT11 Task Started\r\n");
+
+    while (1) {
+        if (DHT11_Read(&sensor_data) && sensor_data.valid) {
+            dht_temp = sensor_data.temperature;
+            dht_hum  = sensor_data.humidity;
+
+            if (dht11_output == OUTPUT_UART) {
+                snprintf(msg, sizeof(msg), "Temperature: %d°C, Humidity: %d%%\r\n",
+                         dht_temp, dht_hum);
+                UART2_SendString(msg);
+            } else if (dht11_output == OUTPUT_OLED) {
+                snprintf(line1, sizeof(line1), "Temp: %d C", dht_temp);
+                snprintf(line2, sizeof(line2), "Hum:  %d %%", dht_hum);
+                ssd1306_display_sensor_data(line1, line2);
+            }
+        } else {
+            if (dht11_output == OUTPUT_UART) {
+                UART2_SendString("DHT11 Read Failed!\r\n");
+            } else if (dht11_output == OUTPUT_OLED) {
+                ssd1306_display_sensor_data("DHT11 Error", "Read Failed");
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}

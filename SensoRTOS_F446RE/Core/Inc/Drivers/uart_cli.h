@@ -1,0 +1,7 @@
+
+#ifndef INC_DRIVERS_UART_CLI_H_
+#define INC_DRIVERS_UART_CLI_H_
+
+void handle_cli_command(char *cmd);
+
+#endif /* INC_DRIVERS_UART_CLI_H_ */

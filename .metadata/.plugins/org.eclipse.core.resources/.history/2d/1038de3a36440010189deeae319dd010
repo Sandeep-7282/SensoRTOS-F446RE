@@ -1,0 +1,30 @@
+/*
+ * Task_HCSR501.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sandeep
+ */
+#include "stm32f4xx.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "hcsr501.h"
+#include "uart.h"
+#include "gpio.h"
+#include "stdio.h"
+
+/* ========== PIR Task ========== */
+void vTask_HCSR501(void *pvParameters) {
+    HCSR501_Init();  // Initializes PB13 as input with pull-down
+
+    while (1) {
+        if (GPIOB->IDR & (1 << 13)) {       // Check PB13 input
+            UART2_SendString("Motion Detected!\r\n");
+            Buzzer_On();        // Turn on buzzer (PA9)
+        } else {
+            UART2_SendString("No motion.\r\n");
+            Buzzer_Off();      // Turn off buzzer (PA9)
+        }
+        vTaskDelay(pdMS_TO_TICKS(1500));    // Delay 1 second
+    }
+}
+

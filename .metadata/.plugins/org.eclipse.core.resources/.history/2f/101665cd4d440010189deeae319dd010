@@ -1,0 +1,13 @@
+/*
+ * Task_HCSR501.h
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+
+#ifndef INC_TASKS_TASK_HCSR501_H_
+#define INC_TASKS_TASK_HCSR501_H_
+
+void vTask_HCSR501(void *pvParameters);
+
+#endif /* INC_TASKS_TASK_HCSR501_H_ */

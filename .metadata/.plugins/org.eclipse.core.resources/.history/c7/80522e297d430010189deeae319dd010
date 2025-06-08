@@ -1,0 +1,20 @@
+/*
+ * hcsr501.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "hcsr501.h"
+#include "delay.h"
+
+void HCSR501_Init(void) {
+    // Enable GPIOB clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+
+    // Configure PB13 as input
+    GPIOB->MODER &= ~(3 << (13 * 2));  // Input mode (00)
+
+    // Configure PB13 with pull-down resistor
+    GPIOB->PUPDR &= ~(3 << (13 * 2));  // Clear PUPDR bits for PB13
+    GPIOB->PUPDR |=  (2 << (13 * 2));  // Set pull-down (10)
+}

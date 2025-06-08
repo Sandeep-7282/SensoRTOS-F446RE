@@ -1,0 +1,70 @@
+/*
+ * main.c
+ *
+ *  Created on: May 18, 2025
+ *      Author: Sandeep
+ */
+#include "stm32f4xx.h"
+#include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "uart.h"
+#include "tasks.h"
+#include "gpio.h"
+#include "info.h"
+
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
+                                    StackType_t **ppxTimerTaskStackBuffer,
+                                    uint32_t *pulTimerTaskStackSize)
+{
+    *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+    *ppxTimerTaskStackBuffer = xTimerStack;
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+}
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+    UART2_SendString("Stack overflow in task: ");
+    UART2_SendString(pcTaskName);
+    UART2_SendString("\r\n");
+
+    while (1); // halt
+}
+
+void TIM1_Init_For_RTOS_Tick(void) {
+    // Enable TIM1 peripheral clock
+    RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+
+    /*
+     * TIM1 is on APB2. For STM32F4, if APB2 prescaler > 1,
+     * the TIM1 input clock becomes 2× the APB2 clock.
+     * Assuming APB2 prescaler is /2 → TIM1 clock = 180 MHz
+     */
+
+    TIM1->PSC = 18000 - 1;   // Prescaler: (180 MHz / 18,000) = 10 kHz
+    TIM1->ARR = 10 - 1;      // ARR: (10,000 / 10) = 1 kHz → 1 ms tick
+
+    TIM1->DIER |= TIM_DIER_UIE;   // Enable update interrupt
+    TIM1->CR1 |= TIM_CR1_CEN;     // Enable timer
+
+    NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);  // Enable TIM1 interrupt
+}
+
+
+int main(void) {
+    UART2_Init();
+    GPIO_Init();
+    TIM1_Init_For_RTOS_Tick();
+    DisplayProjectInfo();
+    DisplayHelp();
+    __enable_irq();  // Required
+
+    StartDefaultTasks();
+
+    vTaskStartScheduler();
+    while (1) {
+    }
+}
+

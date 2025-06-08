@@ -1,0 +1,36 @@
+/*
+ * uart.c
+ *
+ *  Created on: May 22, 2025
+ *      Author: sandeep
+ */
+#include "stm32f4xx.h"
+
+void UART2_Init(void) {
+    RCC->AHB1ENR  |= RCC_AHB1ENR_GPIOAEN;
+    RCC->APB1ENR  |= RCC_APB1ENR_USART2EN;
+
+    // PA2 = TX, PA3 = RX
+    GPIOA->MODER  |=  (0b10 << (2 * 2)) | (0b10 << (2 * 3)); // Alternate function
+    GPIOA->AFR[0] |=  (7 << (4 * 2)) | (7 << (4 * 3));       // AF7 = USART2
+
+    USART2->BRR   = 16000000 / 9600; // Assuming 16 MHz clock
+    USART2->CR1  |= USART_CR1_TE | USART_CR1_UE; // Transmit enable, UART enable
+}
+
+void UART2_SendChar(char c) {
+    while (!(USART2->SR & USART_SR_TXE));
+    USART2->DR = c;
+}
+
+void UART2_SendString(const char *str) {
+    while (*str) {
+        UART2_SendChar(*str++);
+    }
+}
+
+char UART2_ReceiveChar(void) {
+    while (!(USART2->SR & USART_SR_RXNE));  // Wait until RX is not empty
+    return USART2->DR;                      // Read received character
+}
+

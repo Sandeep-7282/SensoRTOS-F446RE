@@ -1,0 +1,2 @@
+../Core/Src/Drivers/delay.c:10:6:DWT_Init	4	static
+../Core/Src/Drivers/delay.c:15:6:delay_us	24	static

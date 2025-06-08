@@ -1,0 +1,13 @@
+/*
+ * hcsr501.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+
+#ifndef SRC_DRIVERS_HCSR501_C_
+#define SRC_DRIVERS_HCSR501_C_
+
+
+
+#endif /* SRC_DRIVERS_HCSR501_C_ */

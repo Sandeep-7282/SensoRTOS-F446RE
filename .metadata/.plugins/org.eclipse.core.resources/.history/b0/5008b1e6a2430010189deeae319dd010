@@ -1,0 +1,48 @@
+/*
+ * Task_OLED.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "ssd1306.h"
+#include <stdio.h>
+#include "uart.h"
+
+extern volatile uint8_t dht_temp;
+extern volatile uint8_t dht_hum;
+
+void vTask_OLED(void *params) {
+    char line[20];
+
+    ssd1306_init();
+    ssd1306_clear();
+
+    // Display startup message once
+    ssd1306_draw_string(0, 0, "Wlcm, Sandeep!");
+   // ssd1306_display();  // Refresh the OLED to show changes
+    vTaskDelay(pdMS_TO_TICKS(2000)); // Show for 2 seconds
+
+    while (1) {
+        ssd1306_clear();
+
+        // If temperature or humidity is zero, show placeholder text
+        if (dht_temp == 0 && dht_hum == 0) {
+            ssd1306_draw_string(0, 0, "Waiting for sensor");
+        } else {
+            sprintf(line, "Temp: %d C", dht_temp);
+            ssd1306_draw_string(0, 0, line);
+
+            sprintf(line, "Hum : %d %%", dht_hum);
+            ssd1306_draw_string(0, 10, line);
+        }
+
+        ssd1306_display();  // Refresh OLED display
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+
+

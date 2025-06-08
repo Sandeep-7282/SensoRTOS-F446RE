@@ -1,0 +1,28 @@
+/*
+ * Task_HCSR501.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sandeep
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "hcsr501.h"
+#include "uart.h"
+#include "stdio.h"
+
+/* ========== PIR Task ========== */
+void vTask_HCSR501(void *pvParameters) {
+   // char msg[64];
+    HCSR501_Init();
+
+    while (1) {
+        if (GPIOA->IDR & (1 << 6)) {
+            UART2_TransmitString("Motion Detected!\r\n");
+            GPIOA->ODR |= (1 << 7); // Turn on buzzer
+        } else {
+            UART2_TransmitString("No motion.\r\n");
+            GPIOA->ODR &= ~(1 << 7); // Turn off buzzer
+        }
+        vTaskDelay(pdMS_TO_TICKS(1000));  // 1 second delay
+    }
+}

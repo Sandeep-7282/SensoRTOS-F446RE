@@ -1,0 +1,97 @@
+/*
+ * ssd1306.c
+ *
+ *  Created on: May 29, 2025
+ *      Author: sandeep
+ */
+#include "i2c.h"
+#include "ssd1306.h"
+#include <string.h>
+#include "font5x7.h"
+// Most SSD1306 OLEDs use address 0x3C
+#define SSD1306_ADDR 0x3C
+
+#define COMMAND 0x00
+#define DATA    0x40
+
+void ssd1306_set_cursor(uint8_t x, uint8_t page) {
+    ssd1306_send_command(0xB0 + page);                  // Page address
+    ssd1306_send_command(0x00 + (x & 0x0F));            // Lower nibble
+    ssd1306_send_command(0x10 + ((x >> 4) & 0x0F));     // Higher nibble
+}
+
+void ssd1306_draw_char(uint8_t x, uint8_t page, char c) {
+    if (c < 32 || c > 126) c = '?'; // fallback to '?'
+    ssd1306_set_cursor(x, page);
+    for (int i = 0; i < 5; i++) {
+        ssd1306_send_data(font5x7[c - 32][i]);
+    }
+    ssd1306_send_data(0x00); // spacing
+}
+
+void ssd1306_draw_string(uint8_t x, uint8_t page, const char *str) {
+    while (*str) {
+        ssd1306_draw_char(x, page, *str++);
+        x += 6; // 5 pixels + 1 spacing
+    }
+}
+
+
+void ssd1306_send_command(uint8_t cmd) {
+    I2C1_start(SSD1306_ADDR, I2C_WRITE);
+    I2C1_write(COMMAND);
+    I2C1_write(cmd);
+    I2C1_stop();
+}
+
+void ssd1306_send_data(uint8_t data) {
+    I2C1_start(SSD1306_ADDR, I2C_WRITE);
+    I2C1_write(DATA);
+    I2C1_write(data);
+    I2C1_stop();
+}
+
+void ssd1306_init(void) {
+    I2C1_init();
+
+    ssd1306_send_command(0xAE); // Display off
+    ssd1306_send_command(0x20); // Set Memory Addressing Mode
+    ssd1306_send_command(0x00); // Horizontal addressing mode
+    ssd1306_send_command(0xB0); // Page start address
+    ssd1306_send_command(0xC8); // COM Output Scan Direction
+    ssd1306_send_command(0x00); // Low column addr
+    ssd1306_send_command(0x10); // High column addr
+    ssd1306_send_command(0x40); // Start line address
+    ssd1306_send_command(0x81); ssd1306_send_command(0x7F); // Contrast
+    ssd1306_send_command(0xA1); // Segment remap
+    ssd1306_send_command(0xA6); // Normal display
+    ssd1306_send_command(0xA8); ssd1306_send_command(0x3F); // Multiplex
+    ssd1306_send_command(0xA4); // Entire display ON
+    ssd1306_send_command(0xD3); ssd1306_send_command(0x00); // Display offset
+    ssd1306_send_command(0xD5); ssd1306_send_command(0x80); // Clock divide
+    ssd1306_send_command(0xD9); ssd1306_send_command(0xF1); // Pre-charge
+    ssd1306_send_command(0xDA); ssd1306_send_command(0x12); // COM pins
+    ssd1306_send_command(0xDB); ssd1306_send_command(0x40); // VCOM detect
+    ssd1306_send_command(0x8D); ssd1306_send_command(0x14); // Charge pump
+    ssd1306_send_command(0xAF); // Display ON
+}
+
+void ssd1306_clear(void) {
+    for (uint8_t page = 0; page < 8; page++) {
+        ssd1306_send_command(0xB0 + page); // Set page start
+        ssd1306_send_command(0x00); // Low col
+        ssd1306_send_command(0x10); // High col
+
+        for (uint8_t col = 0; col < 128; col++) {
+            ssd1306_send_data(0x00); // Clear pixel
+        }
+    }
+}
+
+void ssd1306_display_sensor_data(const char *line1, const char *line2) {
+    ssd1306_clear();
+    ssd1306_draw_string(0, 0, line1);  // draw first line on page 0
+    ssd1306_draw_string(0, 1, line2);  // draw second line on page 1
+}
+
+

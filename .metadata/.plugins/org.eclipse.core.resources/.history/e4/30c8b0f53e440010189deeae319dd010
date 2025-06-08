@@ -1,0 +1,36 @@
+/*
+ * gpio.c
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+#include "stm32f4xx.h"
+
+void GPIO_Init(void) {
+    // Enable GPIOA clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+    // PA5: LED, PA6: Buzzer
+    GPIOA->MODER &= ~(0xF << (2*5));  // Clear PA5 & PA6
+    GPIOA->MODER |=  (0x1 << (2*5)) | (0x1 << (2*6)); // Set as output
+
+    GPIOA->OTYPER &= ~(1 << 5); // Push-pull
+    GPIOA->OTYPER &= ~(1 << 6);
+
+    GPIOA->OSPEEDR |= (0x3 << (2*5)); // High speed
+    GPIOA->OSPEEDR |= (0x3 << (2*6));
+}
+
+void LED_Toggle(void) {
+    GPIOA->ODR ^= (1 << 5);
+}
+
+void Buzzer_On(void) {
+    GPIOA->ODR |= (1 << 9);  // Set PA9 high
+}
+
+void Buzzer_Off(void) {
+    GPIOA->ODR &= ~(1 << 9); // Set PA9 low
+}
+
+

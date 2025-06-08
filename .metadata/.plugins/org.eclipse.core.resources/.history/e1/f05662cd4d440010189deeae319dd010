@@ -1,0 +1,13 @@
+/*
+ * Task_DHT11.h
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+
+#ifndef INC_TASKS_TASK_DHT11_H_
+#define INC_TASKS_TASK_DHT11_H_
+
+void vTask_DHT11(void *params);
+
+#endif /* INC_TASKS_TASK_DHT11_H_ */

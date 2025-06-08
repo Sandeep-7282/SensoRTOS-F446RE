@@ -1,0 +1,38 @@
+/*
+ * Task_OLED.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "ssd1306.h"
+#include <stdio.h>
+#include "uart.h"
+
+extern volatile uint8_t dht_temp;
+extern volatile uint8_t dht_hum;
+
+void vTask_OLED(void *params) {
+    char line[20];
+
+    ssd1306_init();
+    ssd1306_clear();
+
+    while (1) {
+        ssd1306_clear();
+
+        // Print Temperature
+        sprintf(line, "Temp: %d C", dht_temp);
+        // TODO: draw text on OLED — for now we can send raw bytes (next step: font)
+
+        // Print Humidity
+        sprintf(line, "Hum : %d %%", dht_hum);
+        // Same: draw function pending
+
+       UART2_SendString(line);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+

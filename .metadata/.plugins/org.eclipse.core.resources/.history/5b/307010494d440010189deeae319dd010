@@ -1,0 +1,61 @@
+/*
+ * main.c
+ *
+ *  Created on: May 18, 2025
+ *      Author: Sandeep
+ */
+#include "stm32f4xx.h"
+#include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "uart.h"
+#include "tasks.h"
+#include "gpio.h"
+#include "info.h"
+
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
+                                    StackType_t **ppxTimerTaskStackBuffer,
+                                    uint32_t *pulTimerTaskStackSize)
+{
+    *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+    *ppxTimerTaskStackBuffer = xTimerStack;
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+}
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+    UART2_SendString("Stack overflow in task: ");
+    UART2_SendString(pcTaskName);
+    UART2_SendString("\r\n");
+
+    while (1); // halt
+}
+
+void TIM1_Init_For_RTOS_Tick(void) {
+    RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+
+    TIM1->PSC = 16000 - 1;    // Assuming 16 MHz clock, prescaler to 1 kHz
+    TIM1->ARR = 1 - 1;        // Auto-reload every 1 ms
+    TIM1->DIER |= TIM_DIER_UIE; // Enable update interrupt
+    TIM1->CR1 |= TIM_CR1_CEN;   // Enable timer
+
+    NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+}
+
+int main(void) {
+    UART2_Init();
+    GPIO_Init();
+    TIM1_Init_For_RTOS_Tick();
+    DisplayProjectInfo();
+    DisplayHelp();
+    __enable_irq();  // Required
+
+    StartDefaultTasks();
+
+    vTaskStartScheduler();
+    while (1) {
+    }
+}
+

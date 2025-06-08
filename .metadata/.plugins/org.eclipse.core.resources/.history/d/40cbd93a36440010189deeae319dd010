@@ -1,0 +1,68 @@
+/*
+ * Task_DHT11.c
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "dht11.h"
+#include "uart.h"
+#include "stdio.h"
+#include "string.h"
+
+volatile uint8_t dht_temp = 0;
+volatile uint8_t dht_hum = 0;
+
+void vTask_DHT11(void *params) {
+    DHT11_Data sensor_data;
+    char msg[64];
+//    char rxbuffer[100];
+//    int idx = 0;
+//    char c;
+    DHT11_Init();
+    UART2_SendString("DHT11 Task Started\r\n");
+    while (1) {
+//        c= UART2_ReceiveChar();
+//        UART2_SendChar(c);
+//
+//        if (c == '\r' || c == '\n') {
+//            rxbuffer[idx] = '\0';
+//
+//            if (strcmp(rxbuffer, "dht start") == 0) {
+//                if (DHT11_Read(&sensor_data) && sensor_data.valid) {
+//                    snprintf(msg, sizeof(msg), "Temperature: %d°C, Humidity: %d%%\r\n",
+//                             sensor_data.temperature, sensor_data.humidity);
+//                } else {
+//                    snprintf(msg, sizeof(msg), "DHT11 Read Failed!\r\n");
+//                }
+//                UART2_SendString(msg);
+//            } else if (strcmp(rxbuffer, "dht stop") == 0) {
+//                UART2_SendString("DHT11 Sensor Stopped\r\n");
+//            } else {
+//                UART2_SendString("Unknown Command\r\n");
+//            }
+//
+//            // Reset buffer
+//            idx = 0;
+//            memset(rxbuffer, 0, sizeof(rxbuffer));
+//            UART2_SendString("> ");  // Prompt
+//        } else {
+//            if (idx < sizeof(rxbuffer) - 1) {
+//                rxbuffer[idx++] = c;
+//            }
+//        }
+       // vTaskDelay(pdMS_TO_TICKS(10));
+    	if (DHT11_Read(&sensor_data) && sensor_data.valid) {
+    	    dht_temp = sensor_data.temperature;
+    	    dht_hum  = sensor_data.humidity;
+
+    	    snprintf(msg, sizeof(msg), "Temperature: %d°C, Humidity: %d%%\r\n",
+    	    		dht_temp, dht_hum);
+    	} else {
+    	    snprintf(msg, sizeof(msg), "DHT11 Read Failed!\r\n");
+    	}
+         UART2_SendString(msg);
+         vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}

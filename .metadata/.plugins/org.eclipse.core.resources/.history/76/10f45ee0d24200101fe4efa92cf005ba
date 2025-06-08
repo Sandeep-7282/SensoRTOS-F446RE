@@ -1,0 +1,34 @@
+/*
+ * Task_DHT11.c
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "dht11.h"
+#include "uart.h"
+#include "stdio.h"
+
+void vTask_DHT11(void *params) {
+    DHT11_Data sensor_data;
+    char msg[64];
+
+    DHT11_Init();
+
+    while (1) {
+        if (DHT11_Read(&sensor_data) && sensor_data.valid) {
+            snprintf(msg, sizeof(msg), "Temperature: %d°C, Humidity: %d%%\r\n",
+                     sensor_data.temperature, sensor_data.humidity);
+        } else {
+            snprintf(msg, sizeof(msg), "DHT11 Read Failed!\r\n");
+            snprintf(msg,sizeof(msg), sensor_data);
+        }
+
+        UART2_SendString(msg);
+
+        vTaskDelay(pdMS_TO_TICKS(2000));  // Delay for 2 seconds
+    }
+}
+
+

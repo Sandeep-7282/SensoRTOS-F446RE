@@ -1,0 +1,7 @@
+
+#ifndef INC_TASKS_TASK_LED_H_
+#define INC_TASKS_TASK_LED_H_
+
+void vTask_LED(void *argument);
+
+#endif /* INC_TASKS_TASK_LED_H_ */

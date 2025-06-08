@@ -1,0 +1,10 @@
+
+#ifndef INC_DRIVERS_GPIO_H_
+#define INC_DRIVERS_GPIO_H_
+
+void GPIO_Init(void);
+void LED_Toggle(void);
+void Buzzer_On(void);
+void Buzzer_Off(void);
+
+#endif /* INC_DRIVERS_GPIO_H_ */

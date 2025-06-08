@@ -1,0 +1,4 @@
+../Core/Src/Drivers/dht11.c:34:6:DHT11_Init	8	static
+../Core/Src/Drivers/dht11.c:41:16:DHT11_CheckResponse	16	static
+../Core/Src/Drivers/dht11.c:52:16:DHT11_ReadByte	16	static
+../Core/Src/Drivers/dht11.c:65:9:DHT11_Read	24	static

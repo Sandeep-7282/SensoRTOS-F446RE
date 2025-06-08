@@ -1,0 +1,51 @@
+/*
+ * Task_UART.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "gpio.h"
+#include "uart.h"
+#include "uart_cli.h"
+#include <string.h>
+#include "output_control.h"
+
+#define CLI_BUFFER_SIZE 64
+
+void handle_cli_command(char *cmd); // Declare this if it's in another file
+
+void vTask_UART(void *pvParameters) {
+    char cli_buffer[CLI_BUFFER_SIZE];
+    int idx = 0;
+    char c;
+
+    UART2_SendString("\r\n>> ");  // Prompt
+
+    while (1) {
+        c = UART2_ReceiveChar();  // Blocking receive
+        UART2_SendChar(c);
+        if (c == '\r' || c == '\n') {
+            UART2_SendString("\r\n");
+
+            if (idx > 0) {
+                cli_buffer[idx] = '\0';  // Null-terminate
+                handle_cli_command(cli_buffer);
+                idx = 0;
+                vTaskDelay(pdMS_TO_TICKS(500));
+            }
+
+            UART2_SendString(">> ");  // CLI prompt
+        } else if (c == '\b' || c == 127) {  // Backspace
+            if (idx > 0) {
+                idx--;
+                UART2_SendString("\b \b");  // Erase on terminal
+            }
+        } else if (idx < CLI_BUFFER_SIZE - 1) {
+            cli_buffer[idx++] = c;
+            UART2_SendChar(c);  // Echo character
+        }
+    }
+}
+

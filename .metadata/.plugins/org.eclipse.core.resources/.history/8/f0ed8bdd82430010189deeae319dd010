@@ -1,0 +1,31 @@
+/*
+ * Task_HCSR04.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "hcsr04.h"
+#include "uart.h"
+#include "stdio.h"
+
+void vTask_HCSR04(void *params) {
+    char msg[64];
+    uint32_t distance;
+
+    HC_SR04_Init();
+    UART2_SendString("HC-SR04 Task Started\r\n");
+
+    while (1) {
+        distance = HC_SR04_ReadDistance();
+        if (distance > 0) {
+            snprintf(msg, sizeof(msg), "Distance: %lu cm\r\n", distance);
+        } else {
+            snprintf(msg, sizeof(msg), "Distance read error!\r\n");
+        }
+        UART2_SendString(msg);
+        vTaskDelay(pdMS_TO_TICKS(1000));  // 1 second delay
+    }
+}
+

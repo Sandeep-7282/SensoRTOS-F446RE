@@ -1,0 +1,22 @@
+/*
+ * delay.c
+ *
+ *  Created on: May 25, 2025
+ *      Author: sandeep
+ */
+#include "stm32f4xx.h"
+#include "stdint.h"
+
+void DWT_Init(void) {
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // Enable trace
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;            // Enable the cycle counter
+}
+
+void delay_us(uint32_t us) {
+    uint32_t start = DWT->CYCCNT;
+    uint32_t ticks = us * (SystemCoreClock / 1000000); // 180 ticks per us at 180 MHz
+
+    while ((DWT->CYCCNT - start) < ticks);
+}
+
+

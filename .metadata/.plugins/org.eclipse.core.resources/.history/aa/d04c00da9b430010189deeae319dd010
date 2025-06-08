@@ -1,0 +1,38 @@
+/*
+ * tasks.c
+ *
+ *  Created on: Jun 6, 2025
+ *      Author: sandeep
+ */
+
+#include "stdio.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "stm32f4xx.h"
+#include "uart.h"
+#include "gpio.h"
+#include "Task_LED.h"
+#include "Task_DHT11.h"
+#include "Task_UART.h"
+#include "Task_HCSR04.h"
+#include "Task_HCSR501.h"
+
+/* ========== Global Variables ========== */
+
+TaskHandle_t ledTaskHandle = NULL;
+TaskHandle_t dhtTaskHandle = NULL;
+TaskHandle_t uartTaskHandle = NULL;
+TaskHandle_t pirTaskHandle = NULL;
+
+/* ========== Task Startup Function ========== */
+void StartDefaultTasks(void) {
+	UART2_SendString("Setting Up Tasks...\r\n");
+    xTaskCreate(vTask_LED, "LED", 128, NULL, 1, &ledTaskHandle);
+    xTaskCreate(vTask_DHT11, "DHT11", 256, NULL, 2, NULL);
+    xTaskCreate(vTask_HCSR04, "HC_SR04", 256, NULL, 1, NULL);
+    xTaskCreate(vTask_HCSR501, "PIR", 128, NULL, 1, &pirTaskHandle);
+    xTaskCreate(vTask_OLED, "OLED", 128, NULL, 2, NULL);
+    //xTaskCreate(vTask_UART, "LED", 128, NULL, 1, &uartTaskHandle);
+}
+
+

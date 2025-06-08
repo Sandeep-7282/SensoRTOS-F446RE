@@ -1,0 +1,4 @@
+../Core/Src/Drivers/gpio.c:9:6:GPIO_Init	4	static
+../Core/Src/Drivers/gpio.c:28:6:LED_Toggle	4	static
+../Core/Src/Drivers/gpio.c:32:6:Buzzer_On	4	static
+../Core/Src/Drivers/gpio.c:36:6:Buzzer_Off	4	static

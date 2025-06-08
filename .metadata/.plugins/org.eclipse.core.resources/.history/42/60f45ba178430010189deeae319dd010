@@ -1,0 +1,65 @@
+/*
+ * hcsr04.c
+ *
+ *  Created on: Jun 7, 2025
+ *      Author: sande
+ */
+#include "hcsr04.h"
+#include "delay.h"
+#include "stm32f4xx.h"
+// Pins
+#define TRIG_PORT GPIOA
+#define TRIG_PIN 6
+
+#define ECHO_PORT GPIOA
+#define ECHO_PIN 7
+
+#define TRIG_HIGH()  (TRIG_PORT->BSRR = (1U << TRIG_PIN))
+#define TRIG_LOW()   (TRIG_PORT->BSRR = (1U << (TRIG_PIN + 16)))
+
+#define ECHO_READ()  ((ECHO_PORT->IDR >> ECHO_PIN) & 0x1)
+
+void HC_SR04_Init(void) {
+    // Enable GPIOA clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+    // Configure PA6 as output (Trig)
+    TRIG_PORT->MODER &= ~(3U << (TRIG_PIN * 2));
+    TRIG_PORT->MODER |=  (1U << (TRIG_PIN * 2));  // output mode
+    TRIG_PORT->OTYPER &= ~(1U << TRIG_PIN);       // push-pull
+    TRIG_PORT->OSPEEDR |= (3U << (TRIG_PIN * 2)); // high speed
+
+    // Configure PA7 as input (Echo)
+    ECHO_PORT->MODER &= ~(3U << (ECHO_PIN * 2));  // input mode
+    ECHO_PORT->PUPDR &= ~(3U << (ECHO_PIN * 2));  // no pull-up/down
+
+    TRIG_LOW();
+}
+
+uint32_t HC_SR04_ReadDistance(void) {
+    uint32_t count = 0;
+    uint32_t timeout = 60000; // timeout counter (~60 ms)
+
+    // Trigger pulse: 10 us high
+    TRIG_HIGH();
+    delay_us(10);
+    TRIG_LOW();
+
+    // Wait for echo to go high (start)
+    while (!ECHO_READ()) {
+        if (--timeout == 0) return 0; // timeout error
+    }
+
+    // Measure pulse width while echo is high
+    count = 0;
+    while (ECHO_READ()) {
+        if (++count > 60000) return 0; // timeout error (~60 ms max)
+        delay_us(1);
+    }
+
+    // count is pulse width in us approx
+    // distance in cm = pulse duration(us) / 58
+    return count / 58;
+}
+
+
